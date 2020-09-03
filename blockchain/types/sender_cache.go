@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/hashicorp/golang-lru"
 	"github.com/hpb-project/go-hpb/common"
+	"github.com/hpb-project/go-hpb/common/log"
 )
 
 var (
@@ -35,6 +36,7 @@ func (this *SenderCache) Get(txhash common.Hash) (common.Address, error) {
 	if this.cache != nil {
 		v, find := this.cache.Get(txhash)
 		if find {
+			log.Info("senderCache get","txhash", txhash.String(), "addr", v.(common.Address).String())
 			return v.(common.Address), nil
 		}
 	}
@@ -46,6 +48,7 @@ func (this *SenderCache) GetOrSet(txhash common.Hash, addr common.Address) {
 		_, find := this.cache.Get(txhash)
 		if !find {
 			this.cache.Add(txhash, addr)
+			log.Info("senderCache add","txhash", txhash.String(), "addr", addr.String())
 		}
 	}
 }
@@ -53,6 +56,7 @@ func (this *SenderCache) GetOrSet(txhash common.Hash, addr common.Address) {
 func (this *SenderCache) Delete(txhash common.Hash) {
 	if this.cache != nil {
 		this.cache.Remove(txhash)
+		log.Info("senderCache remove","txhash", txhash.String())
 	}
 }
 

@@ -96,6 +96,9 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB) (ty
 
 		if errs != nil {
 			// clear sender cache when tx apply failed.
+			log.Error("after applyTransaction")
+			sender, _ := types.Sender(synsigner, tx)
+			log.Error("transaction process failed","sender", sender.String(),"tx.hash", tx.Hash().String(),"err", errs)
 			types.Sendercache.Delete(tx.Hash())
 			return nil, nil, nil, errs
 		}

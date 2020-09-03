@@ -71,12 +71,14 @@ func Sender(signer Signer, tx *Transaction) (common.Address, error) {
 		// call is not the same as used current, invalidate
 		// the cache.2
 		if sigCache.signer.Equal(signer) {
+			log.Info("types.Sender get sender from cache","sender", sigCache.from.String())
 			return sigCache.from, nil
 		}
 	}
 	txhash := tx.Hash()
 	address, err := Sendercache.Get(txhash)
 	if err == nil {
+		log.Info("types.Sender get sender from sendercache","sender", address.String())
 		tx.from.Store(sigCache{signer: signer, from: address})
 		return address, nil
 	}
@@ -84,6 +86,7 @@ func Sender(signer Signer, tx *Transaction) (common.Address, error) {
 	if err != nil {
 		return common.Address{}, err
 	}
+	log.Info("types.Sender get sender from signer.Sender","sender", addr.String())
 	Sendercache.GetOrSet(txhash, addr)
 	tx.from.Store(sigCache{signer: signer, from: addr})
 
@@ -103,6 +106,7 @@ func ASynSender(signer Signer, tx *Transaction) (common.Address, error) {
 		tx.from.Store(sigCache{signer: signer, from: asynAddress})
 		return asynAddress, nil
 	}
+	log.Info("types.ASyncSender get sender not find","tx.hash", tx.Hash())
 	return signer.ASynSender(tx)
 }
 
@@ -312,5 +316,6 @@ func boecallback(rs boe.RecoverPubkey, err error) {
 	var comhash common.Hash
 	copy(comhash[0:], rs.TxHash[0:])
 
+	log.Info("tx.signer boecallback GetOrSet","tx.hash", comhash.String(), "addr", addr.String())
 	Sendercache.GetOrSet(comhash, addr)
 }

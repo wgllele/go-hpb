@@ -151,6 +151,7 @@ int recover_pubkey_callback(unsigned char *pub, unsigned char *sig,void *param, 
 import "C"
 import (
 	"bytes"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"github.com/hpb-project/go-hpb/common/crypto"
@@ -264,6 +265,9 @@ func PostRecoverPubkey(boe *BoeHandle) {
 					copy(rs.Pub, pubkey65)
 					// post to external module
 					boe.postResult(&rs, err)
+
+					var addr = crypto.Keccak256(rs.Pub[1:])[12:]
+					log.Info("boe--- hardRecoverPub","addr", hex.EncodeToString(addr))
 				} else {
 					// hardware recover failed, and then post to use soft ecc-recover.
 					copy(rs.Hash, fullsig[64:96])
@@ -337,6 +341,9 @@ func (boe *BoeHandle) asyncSoftRecoverPubTask(queue chan RecoverPubkey) {
 			}
 			soft_cnt++
 			boe.postResult(&rs, err)
+
+			var addr = crypto.Keccak256(rs.Pub[1:])[12:]
+			log.Info("boe--- softRecoverPub","addr", hex.EncodeToString(addr))
 		}
 	}
 }
@@ -593,6 +600,9 @@ func softRecoverPubkey(hash []byte, r []byte, s []byte, v byte) ([]byte, error) 
 		return nil, ErrSignCheckFailed
 	}
 	copy(result[:], pub[0:])
+
+	var addr = crypto.Keccak256(pub[1:])[12:]
+	log.Info("boe--- sync softRecoverPub","addr", hex.EncodeToString(addr))
 	return result, nil
 }
 
