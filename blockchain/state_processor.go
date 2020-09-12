@@ -18,6 +18,7 @@ package bc
 
 import (
 	"encoding/json"
+	"github.com/hpb-project/go-hpb/boe"
 	"math/big"
 
 	"github.com/hpb-project/go-hpb/blockchain/state"
@@ -100,6 +101,11 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB) (ty
 			sender, _ := types.Sender(synsigner, tx)
 			log.Error("transaction process failed","sender", sender.String(),"tx.hash", tx.Hash().String(),"err", errs)
 			types.Sendercache.Delete(tx.Hash())
+
+			if errs == ErrNonceTooHigh {
+				// maybe boe recover pubkey failed, so sleep some time.
+				boe.BoeGetInstance().Sleep()
+			}
 			return nil, nil, nil, errs
 		}
 
