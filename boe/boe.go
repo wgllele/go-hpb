@@ -212,7 +212,7 @@ var (
 	async_call uint32       // metrics tx number recover pubkey with async api
 	sync_call  uint32       // metrics tx number recover pubkey with sync  api
 	boeversion atomic.Value // cache boeversion
-	boesleepduration         = time.Second * 60
+	boesleepduration         = time.Second * 600
 )
 
 func BoeGetInstance() *BoeHandle {
@@ -255,7 +255,7 @@ func PostRecoverPubkey(boe *BoeHandle) {
 				// change format from C.array to go array
 				cArrayToGoArray(unsafe.Pointer(r.txhash), rs.TxHash, len(rs.TxHash))
 				cArrayToGoArray(unsafe.Pointer(r.sig), fullsig, len(fullsig))
-				if r.flag == 0 {
+				if r.flag == 0 && !boe.sleep {
 					// hardware recover succeed
 					pubkey65 := make([]byte, 65)
 					cArrayToGoArray(unsafe.Pointer(r.pub), pubkey65, len(pubkey65))
@@ -749,10 +749,12 @@ func (boe *BoeHandle) Sleep() {
 	if !boe.sleep {
 		boe.sleep = true
 		go func() {
-			sleeptimer := time.NewTicker(boesleepduration)
+			sleeptimer := time.NewTimer(boesleepduration)
+			defer sleeptimer.Stop()
 			select {
 			case <-sleeptimer.C:
 				boe.sleep = false
+				return
 			}
 		}()
 	}
