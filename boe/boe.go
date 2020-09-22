@@ -269,7 +269,7 @@ func PostRecoverPubkey(boe *BoeHandle) {
 					boe.postResult(&rs, err)
 
 					var addr = crypto.Keccak256(rs.Pub[1:])[12:]
-					log.Info("boe--- hardRecoverPub","addr", hex.EncodeToString(addr))
+					log.Info("boe--- hardRecoverPub","txhash", hex.EncodeToString(rs.TxHash), "addr", hex.EncodeToString(addr))
 				} else {
 					// hardware recover failed, and then post to use soft ecc-recover.
 					copy(rs.Hash, fullsig[64:96])
@@ -345,7 +345,8 @@ func (boe *BoeHandle) asyncSoftRecoverPubTask(queue chan RecoverPubkey) {
 			boe.postResult(&rs, err)
 
 			var addr = crypto.Keccak256(rs.Pub[1:])[12:]
-			log.Info("boe--- softRecoverPub","addr", hex.EncodeToString(addr))
+			log.Info("boe--- softRecoverPub","txhash", hex.EncodeToString(rs.TxHash), "addr", hex.EncodeToString(addr))
+
 		}
 	}
 }
