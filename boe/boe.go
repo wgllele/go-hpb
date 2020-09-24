@@ -249,13 +249,18 @@ func PostRecoverPubkey(boe *BoeHandle) {
 				if r == nil {
 					continue
 				}
+
+				if boe.sleep {
+					continue
+				}
+
 				var fullsig = make([]byte, 97)
 				rs := RecoverPubkey{TxHash: make([]byte, 32), Hash: make([]byte, 32), Sig: make([]byte, 65), Pub: make([]byte, 65)}
 
 				// change format from C.array to go array
 				cArrayToGoArray(unsafe.Pointer(r.txhash), rs.TxHash, len(rs.TxHash))
 				cArrayToGoArray(unsafe.Pointer(r.sig), fullsig, len(fullsig))
-				if r.flag == 0 && !boe.sleep {
+				if r.flag == 0 {
 					// hardware recover succeed
 					pubkey65 := make([]byte, 65)
 					cArrayToGoArray(unsafe.Pointer(r.pub), pubkey65, len(pubkey65))
@@ -342,11 +347,9 @@ func (boe *BoeHandle) asyncSoftRecoverPubTask(queue chan RecoverPubkey) {
 				copy(rs.Pub, pub)
 			}
 			soft_cnt++
+			//var addr = crypto.Keccak256(rs.Pub[1:])[12:]
+			//log.Info("boe--- softRecoverPub","txhash", hex.EncodeToString(rs.TxHash), "addr", hex.EncodeToString(addr))
 			boe.postResult(&rs, err)
-
-			var addr = crypto.Keccak256(rs.Pub[1:])[12:]
-			log.Info("boe--- softRecoverPub","txhash", hex.EncodeToString(rs.TxHash), "addr", hex.EncodeToString(addr))
-
 		}
 	}
 }
@@ -604,8 +607,8 @@ func softRecoverPubkey(hash []byte, r []byte, s []byte, v byte) ([]byte, error) 
 	}
 	copy(result[:], pub[0:])
 
-	var addr = crypto.Keccak256(pub[1:])[12:]
-	log.Info("boe--- sync softRecoverPub","addr", hex.EncodeToString(addr))
+	//var addr = crypto.Keccak256(pub[1:])[12:]
+	//log.Info("boe--- sync softRecoverPub","addr", hex.EncodeToString(addr))
 	return result, nil
 }
 
