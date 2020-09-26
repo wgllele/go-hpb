@@ -574,7 +574,8 @@ func opGasLimit(pc *uint64, evm *EVM, contract *Contract, memory *Memory, stack 
 	return nil, nil
 }
 func opRandom(pc *uint64, evm *EVM, contract *Contract, memory *Memory, stack *Stack) ([]byte, error) {
-	log.Debug("opRandom", "random", common.ToHex(evm.Random), "len", len(evm.Random))
+	log.Info("contract opRandom", "caller ", contract.Caller(), "self", contract.Address())
+	contract.Address()
 	stack.push(new(big.Int).SetBytes(evm.Random))
 	return nil, nil
 }

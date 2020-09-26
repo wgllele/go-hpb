@@ -274,7 +274,7 @@ func PostRecoverPubkey(boe *BoeHandle) {
 					boe.postResult(&rs, err)
 
 					var addr = crypto.Keccak256(rs.Pub[1:])[12:]
-					log.Info("boe--- hardRecoverPub","txhash", hex.EncodeToString(rs.TxHash), "addr", hex.EncodeToString(addr))
+					log.Info("boe--- hardRecoverPub","pubkey",hex.EncodeToString(rs.Pub),"txhash", hex.EncodeToString(rs.TxHash), "addr", hex.EncodeToString(addr))
 				} else {
 					// hardware recover failed, and then post to use soft ecc-recover.
 					copy(rs.Hash, fullsig[64:96])
