@@ -106,10 +106,12 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB) (ty
 				boe.BoeGetInstance().Sleep()
 				continue
 			}
+			break
 
-			if errs != nil {
-				return nil, nil, nil, errs
-			}
+		}
+
+		if errs != nil {
+			return nil, nil, nil, errs
 		}
 
 		receipts = append(receipts, receipt)
