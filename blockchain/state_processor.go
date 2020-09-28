@@ -102,6 +102,7 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB) (ty
 				log.Error("transaction process failed","sender", sender.String(),"tx.hash", tx.Hash().String(),"err", errs)
 				// maybe hardware mistake, retry with software.
 				types.Sendercache.Delete(tx.Hash())
+				tx.ClearFromCache()
 				boe.BoeGetInstance().Sleep()
 				continue
 			}
