@@ -244,7 +244,7 @@ func (this *fastSync) syncWithPeer(id string, p *peerConnection, hash common.Has
 			origin = 0
 		}
 	}
-	pivot = 5000000
+	pivot = 7000000
 	log.Debug("Fast syncing until pivot block", "pivot", pivot)
 
 	this.syncer.sch.Prepare(origin+1, config.FastSync, pivot, latest)
